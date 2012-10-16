@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/resources/**" location="/resources/" />
+    
+    <!-- tilesView -->
+    <beans:bean id="viewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+        <beans:property name="viewClass" value="org.springframework.web.servlet.view.tiles2.TilesView"></beans:property>
+        <beans:property name="order" value="1" />
+    </beans:bean>
+    <beans:bean id="tileConfigurer" class="org.springframework.web.servlet.view.tiles2.TilesConfigurer">
+        <beans:property name="definitions">
+            <beans:list>
+                <beans:value>/WEB-INF/tiles/tiles-complex.xml</beans:value>
+                <beans:value>/WEB-INF/tiles/tiles-simple.xml</beans:value>
+                <beans:value>/WEB-INF/tiles/tiles-plain.xml</beans:value>
+            </beans:list>
+        </beans:property>
+    </beans:bean>
+    
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+		<beans:property name="order" value="2" />
+	</beans:bean>
+	
+	<context:component-scan base-package="com.hoyoul.board" />
+	
+	<beans:bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<beans:property name="basename" value="/WEB-INF/messages" />
+        <beans:property name="defaultEncoding" value="UTF-8" />	
+	</beans:bean> 
+	
+	<beans:bean id="propertyConfigurer"
+        class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+        p:location="/WEB-INF/jdbc.properties" />
+
+   	<beans:bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+        p:driverClassName="${jdbc.driverClassName}" p:url="${jdbc.databaseurl}" 
+   		p:username="${jdbc.username}" p:password="${jdbc.password}"
+   		p:initialSize="2" p:maxActive="5"
+   		/>	
+   		    
+    <beans:bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+        <beans:property name="dataSource" ref="dataSource" />
+        <beans:property name="configLocation" value="/WEB-INF/hibernate.cfg.xml"/>
+        <beans:property name="configurationClass" value="org.hibernate.cfg.AnnotationConfiguration"/>
+        <beans:property name="hibernateProperties">
+            <beans:props>
+                <beans:prop key="hibernate.dialect">${jdbc.dialect}</beans:prop>
+                <beans:prop key="hibernate.show_sql">false</beans:prop>
+                <beans:prop key="hibernate.hbm2ddl.auto">validate</beans:prop>
+            </beans:props>
+        </beans:property>
+    </beans:bean>
+    
+    <!-- <tx:annotation-driven/> -->
+    <beans:bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <beans:property name="sessionFactory" ref="sessionFactory" />
+    </beans:bean>
+	
+</beans:beans>
